@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.13.1)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(rpmsg_lite_str_echo)
 
-set(BOARD mimx8m_evk)
+set(RMP_BASE ../../../..)
 
 # ShM driver directories
 set(rpmsg_lite_sample_dir ${CMAKE_CURRENT_SOURCE_DIR})
@@ -19,11 +19,22 @@ set(rpmsg_lite_build_dir  ${CMAKE_CURRENT_SOURCE_DIR}/output)
 set(rpmsg_lite_root_dir   ${CMAKE_CURRENT_SOURCE_DIR}/../.../../..)
 
 # Sample sources
-target_sources(app PRIVATE src/rpmsg_lite_str_echo.c)
+target_sources(app PRIVATE rpmsg_lite_str_echo.c)
 
 # Sample includes
-target_include_directories(app PRIVATE "${rpmsg_lite_root_dir}/src/common")
-target_include_directories(app PRIVATE "${rpmsg_lite_sample_dir}/src")
+target_include_directories(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/include")
+target_include_directories(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/include/environment/bm")
+target_include_directories(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/include/environment/zephyr")
+target_include_directories(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/include/platform/imx8mm_m4")
+target_include_directories(app PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/common/llist.c")
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/rpmsg_lite/rpmsg_lite_zephyr.c")
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/rpmsg_lite/rpmsg_ns.c")
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/rpmsg_lite/rpmsg_queue.c")
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/rpmsg_lite/porting/environment/rpmsg_env_zephyr.c")
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/rpmsg_lite/porting/platform/imx8mm_m4/rpmsg_platform.c")
+target_sources(app PRIVATE "/home/letter/zephyrproject/Inter-Platform-Communication/lib/virtio/virtqueue.c")
 
 # Export all the flags used in this Zephyr build to the external build system
 zephyr_get_include_directories_for_lang_as_string(       C includes)
@@ -47,15 +58,15 @@ set(submake "make")
 endif()
 
 ExternalProject_Add(
-  ipc_shm_lib_project              # Name for custom target
-  PREFIX     ${ipc_shm_build_dir}  # Root dir for entire project
-  SOURCE_DIR ${ipc_shm_sample_dir}
-  BINARY_DIR ${ipc_shm_sample_dir} # Invoked from the root
+  rpmsg_lite_lib_project              # Name for custom target
+  PREFIX     ${rpmsg_lite_build_dir}  # Root dir for entire project
+  SOURCE_DIR ${rpmsg_lite_sample_dir}
+  BINARY_DIR ${rpmsg_lite_sample_dir} # Invoked from the root
   CONFIGURE_COMMAND ""             # No configuration command needed
   BUILD_COMMAND
   ${submake}
   platform=mimx8m_evk                  # TODO: get from West board parameter
-  PREFIX=${ipc_shm_build_dir}
+  PREFIX=${rpmsg_lite_build_dir}
   CC=${CMAKE_C_COMPILER}           # CC and AR picked up from West configuration
   AR=${CMAKE_AR}
   CFLAGS=${external_project_cflags}
@@ -75,4 +86,4 @@ ExternalProject_Add(
 #   )
 # set_target_properties(ipc_shm_lib PROPERTIES IMPORTED_LOCATION ${IPC_SHM_LIB_DIR}/libipc-shm.a)
 
-target_link_libraries(app PUBLIC ipc_shm_lib)
+# target_link_libraries(app PUBLIC ipc_shm_lib)

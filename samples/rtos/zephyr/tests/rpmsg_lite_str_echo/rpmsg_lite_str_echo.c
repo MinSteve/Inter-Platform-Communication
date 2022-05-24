@@ -11,10 +11,9 @@
 #include <string.h>
 #include <zephyr.h>
 #include <device.h>
-#include <misc/printk.h>
-#include <rpmsg_lite.h>
-#include <rpmsg_queue.h>
-#include <rpmsg_ns.h>
+#include "rpmsg_lite.h"
+#include "rpmsg_queue.h"
+#include "rpmsg_ns.h"
 
 /*******************************************************************************
  * Definitions
@@ -38,8 +37,8 @@ static char app_buf[512]; /* Each RPMSG buffer can carry less than 512 payload *
 /*******************************************************************************
  * Code
  ******************************************************************************/
-K_THREAD_STACK_DEFINE(thread_stack, APP_TASK_STACK_SIZE)
-static struct k_thread thread_data;
+K_THREAD_STACK_DEFINE(thread_stack, APP_TASK_STACK_SIZE);
+struct k_thread thread_data;
 
 static struct rpmsg_lite_instance *volatile my_rpmsg = NULL;
 
@@ -95,9 +94,9 @@ void app_task(void *arg1, void *arg2, void *arg3)
         app_buf[len] = 0; /* End string by '\0' */
 
         if ((len == 2) && (app_buf[0] == 0xd) && (app_buf[1] == 0xa))
-            PRINTF("Get New Line From Master Side\r\n");
+            printk("Get New Line From Master Side\r\n");
         else
-            PRINTF("Get Message From Master Side : \"%s\" [len : %d]\r\n", app_buf, len);
+            printk("Get Message From Master Side : \"%s\" [len : %d]\r\n", app_buf, len);
 
         /* Get tx buffer from RPMsg */
         tx_buf = rpmsg_lite_alloc_tx_buffer(my_rpmsg, &size, RL_BLOCK);
@@ -129,5 +128,7 @@ int main(void)
 {
     k_thread_create(&thread_data, thread_stack, APP_TASK_STACK_SIZE,
                     (k_thread_entry_t)app_task,
-                    NULL, NULL, NULL, K_PRIO_COOP(7), 0, 0);
+                    NULL, NULL, NULL, K_PRIO_COOP(7), 0, K_NO_WAIT);
+
+    return 0;
 }

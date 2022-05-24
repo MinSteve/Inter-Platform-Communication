@@ -21,9 +21,9 @@ MKDIR := mkdir
 # shm driver configuration
 os_target := zephyr
 
-ifeq ($(platform)
-    $(error platform not set, it need set to mimx8m_evk)
-endif
+# ifeq ($(platform)
+#     $(error platform not set, it need set to mimx8m_evk)
+# endif
 
 # Location of objects and final source directories
 BUILD_DIR ?= output
@@ -35,7 +35,7 @@ LIB_DIR ?= $(BUILD_DIR)/lib
 RPMSGLITE_RTOS_OBJ_DIR ?= $(OBJ_DIR)
 RPMSGLITE_RTOS_PATH ?= ../../../../..
 
-include $(RPMSGLITE_RTOS_PATH)/samples/rtos/zephyr/ipc-shm-rtos.mk
+include $(RPMSGLITE_RTOS_PATH)/samples/rtos/zephyr/rpmsg-lite-rtos.mk
 
 # ShM driver sources to build
 SOURCEDIR += $(RPMSGLITE_RTOS_SRC_DIR)
@@ -80,7 +80,7 @@ clean:
 	@$(RM) -rf $(OBJ_DIR)
 	@$(RM) -rf $(LIB_DIR)
 
-all: mkdir lib
+all: mkdir
 	@$(ECHO) Build complete!
 
 .PHONY: all showflags clean
